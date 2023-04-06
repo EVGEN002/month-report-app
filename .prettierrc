@@ -1,0 +1,11 @@
+{
+    "semi": false,
+    "vueIndentScriptAndStyle": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "printWidth": 200,
+    "arrowParens": "avoid",
+    "bracketSpacing": true,
+    "space-before-function-paren": "never",
+    "trailingComma": "none"
+}
