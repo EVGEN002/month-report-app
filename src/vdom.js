@@ -12,7 +12,7 @@ export const createDOMNode = vNode => {
   const { tagName, attrs, children } = vNode
   const node = document.createElement(tagName)
 
-  Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value))
+  patchAttrs(node, {}, attrs)
 
   children.forEach(child => node.appendChild(createDOMNode(child)))
 
@@ -47,6 +47,29 @@ export const patchNode = (node, vNode, nextVNode) => {
   patchChildren(node, vNode.children, nextVNode.children)
 
   return node
+}
+
+const patchAttr = (node, key, value, nextValue) => {
+  if (nextValue === null || nextValue === false) {
+    node.removeAttribute(key, nextValue)
+    return
+  }
+
+  node.setAttribute(key, nextValue)
+}
+
+const patchAttrs = (node, attrs, nextAttrs) => {
+  const mergedAttrs = { ...attrs, ...nextAttrs }
+
+  Object.keys(mergedAttrs).forEach(key => {
+    if (attrs[key] !== nextAttrs[key]) {
+      patchAttr(node, key, attrs[key], nextAttrs[key])
+    }
+  })
+}
+
+const patchChildren = () => {
+  
 }
 
 export const $mount = (node, target) => {
