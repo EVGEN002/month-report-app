@@ -1,60 +1,48 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
-import { createVNode, createDOMNode, $mount } from './src/vdom.js'
+import { createVNode, createDOMNode, patch } from './src/vdom.js'
 
-// document.querySelector('#app').innerHTML = `
-//   <div>
-//     <a href="https://vitejs.dev" target="_blank">
-//       <img src="${viteLogo}" class="logo" alt="Vite logo" />
-//     </a>
-//     <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-//       <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-//     </a>
-//     <h1>Hello Vite!</h1>
-//     <div class="card">
-//       <button id="counter" type="button"></button>
-//     </div>
-//     <p class="read-the-docs">
-//       Click on the Vite logo to learn more
-//     </p>
-//   </div>
-// `
+const createVButton = props => {
+  const { text, onclick } = props
 
-const createVApp = state => {
-  const { count } = state
+  return createVNode('button', { onclick }, [text])
+}
+
+const createVApp = store => {
+  const { count } = store.state
   return createVNode('div', { class: 'container', 'data-count': count }, [
-    createVNode('h1', {}, ['CUSTOM, Virtual DOM']),
+    createVNode('h1', {}, ['CUSTOM VDOM APP']),
     createVNode('div', {}, [`Count: ${count}`]),
     'Text node without tags',
-    createVNode('img', { src: 'https://tabler-icons.io/img/packages/logo-svelte.svg', width: 100 })
+    createVNode('img', { src: 'https://tabler-icons.io/img/packages/logo-svelte.svg', width: 400 }),
+    createVNode('div', {}, [
+      createVButton({
+        text: '-1',
+        onclick: () => store.setState({ count: store.state.count - 1 })
+      }),
+      ' ',
+      createVButton({
+        text: '+1',
+        onclick: () => store.setState({ count: store.state.count + 1 })
+      })
+    ])
   ])
 }
 
-// const vNode = createVNode('div', { class: 'container' }, [
-//   createVNode('h1', {}, ['CUSTOM Virtual DOM']),
-//   'Text node without tags',
-//   createVNode('img', { src: 'https://tabler-icons.io/img/packages/logo-svelte.svg', width: 100 })
-// ])
+const store = {
+  state: { count: 0 },
+  onStateChanged: () => {},
+  setState(nextState) {
+    this.state = nextState
+    this.onStateChanged()
+  }
+}
 
-// const node = createDOMNode(vNode)
+let app = patch(createVApp(store), document.getElementById('app'))
 
-// console.log(node)
-const state = { count: 0 }
-// const app = document.getElementById('app')
-// $mount(createDOMNode(createVApp(state)), app)
-let vApp = createVApp(state)
-let rootNode = $mount(createDOMNode(vApp), document.getElementById('app'))
+store.onStateChanged = () => {
+  app = patch(createVApp(store), app)
+}
 
 setInterval(() => {
-  state.count++
-
-  const nextVApp = createVApp(state)
-
-  rootNode = patchNode(rootNode, vApp, nextVApp)
-
-  vApp = nextVApp
+  store.setState({ count: store.state.count + 1 })
 }, 1000)
-
-// setupCounter(document.querySelector('#counter'))
